@@ -1,0 +1,1 @@
+$URL = "https://server.com/appupdate/app"
