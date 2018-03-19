@@ -34,7 +34,6 @@ Function Unzip-File{
 #################################################
 ##################### Main ######################
 #################################################
-# Global variables
 $VersionFile="version.ini"
 $InstallFile="install.zip"
 
