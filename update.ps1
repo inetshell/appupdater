@@ -14,7 +14,7 @@ Function Try-Catch-Command{
 
 Function Update-App{
 	Param ($RemoteVersionFile, $InstallZip, $OutPath)
-	Write-Host "Installing or updating App" -ForegroundColor Green
+	Write-Host "Extracting file" -ForegroundColor Green
 	Try-Catch-Command "Unzip-File '$InstallZip' '$OutPath'" "Error during installation"
 	Copy-Item "$RemoteVersionFile" -Destination "$OutPath"
 }
@@ -31,7 +31,6 @@ Function Unzip-File{
 	Add-Type -assembly "system.io.compression.filesystem"
 	[io.compression.zipfile]::ExtractToDirectory($InFile, $OutPath)
 }
-
 #################################################
 ##################### Main ######################
 #################################################
@@ -42,11 +41,11 @@ $InstallFile="install.zip"
 Write-Host "Loading config" -ForegroundColor Green
 Try{. ("$PSScriptRoot\config.ps1")} Catch {	Write-Host "Error reading config file, check if config.ps1 exist in directory" -ForegroundColor Red; exit 1}
 
-Write-Host "Creating temporal directory" -ForegroundColor Green
+Write-Host "Creating temporary directory" -ForegroundColor Green
 $TempPath="$env:TEMP\" + [System.IO.Path]::GetRandomFileName()
-Try-Catch-Command "New-Item -ItemType directory -Path '$TempPath' 2>&1 | Out-Null" "Error creating temporal directory"
+Try-Catch-Command "New-Item -ItemType directory -Path '$TempPath' 2>&1 | Out-Null" "Error creating temporary directory"
 
-Write-Host "Checking lastest version" -ForegroundColor Green
+Write-Host "Checking latest version" -ForegroundColor Green
 Download-File "$Url/$VersionFile" "$TempPath\$VersionFile"
 $RemoteApp = ConvertFrom-StringData((Get-Content $TempPath\$VersionFile ) -join "`n")
 Write-Host "Remote version found: $($RemoteApp.CompileCount)" -ForegroundColor Cyan
@@ -56,22 +55,30 @@ If(test-path "$InstallPath\$VersionFile"){
 	$LocalApp = ConvertFrom-StringData((Get-Content $InstallPath\$VersionFile ) -join "`n")
 	Write-Host "Local version found: $($LocalApp.CompileCount)" -ForegroundColor Cyan
 }
-else {
+else{
 	Write-Host "No local version found" -ForegroundColor Yellow
+	$InstallApp = $True
 }
 
 Write-Host "Closing app if running" -ForegroundColor Green
-Stop-Process -Force -Name $RemoteApp.Name 2>&1 | Out-Null
+Stop-Process -Force -Name $AppName 2>&1 | Out-Null
 
-if([int]$RemoteApp.CompileCount -gt [int]$LocalApp.CompileCount) {
-	Write-Host "Downloading updates" -ForegroundColor Green
+If([int]$RemoteApp.CompileCount -gt [int]$LocalApp.CompileCount){
+	Write-Host "Update required" -ForegroundColor Green
+	$InstallApp = $True
+}
+
+If($InstallApp){
+	Write-Host "Installing the latest version" -ForegroundColor Green
 	Download-File "$Url/$InstallFile" "$TempPath\$InstallFile"
 	Update-App "$TempPath\$VersionFile" "$TempPath\$InstallFile" "$InstallPath"
 }
-else {
-	Write-Host "You have the lastest version, running app" -ForegroundColor Green
-	Start-Process -WorkingDirectory "$InstallPath" "$InstallPath\$($RemoteApp.Name)"
+else{
+	Write-Host "You have the latest version" -ForegroundColor Green
 }
 
-Write-Host "Removing temporal directory" -ForegroundColor Green
+Write-Host "Running app" -ForegroundColor Green
+. "$InstallPath\init.ps1"
+
+Write-Host "Removing temporary directory" -ForegroundColor Green
 Try-Catch-Command "Remove-Item -Recurse '$TempPath' -Force" "Error removing directory $TempPath"
