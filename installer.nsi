@@ -34,7 +34,6 @@ Section "install"
 	; Create shortcut with app icon and Powershell loader
 	ReadEnvStr $3 PUBLIC
 	CreateShortCut "$3\Desktop\${APP_NAME}.lnk" "powershell.exe" "-File $INSTDIR\loader.ps1" "$INSTDIR\icon.ico"
-	CreateShortCut "$3\Desktop\${APP_NAME}.lnk" "powershell.exe" "-File $INSTDIR\loader.ps1" "$INSTDIR\icon.ico"
 	
 	; Create uninstaller
 	writeUninstaller "$INSTDIR\uninstall.exe"
