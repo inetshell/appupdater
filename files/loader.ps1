@@ -1,14 +1,21 @@
 #################################################
 ################### Functions ###################
 #################################################
+Function ExitWithSleep{
+	sleep 10
+	exit 1
+}
+
 Function Try-Catch-Command{
 	Param ($Cmd, $ErrorMessage)
-	try {
+	Try {
 		Invoke-Expression $Cmd
 	}
-	catch {
+	Catch {
 		Write-Host "$ErrorMessage" -ForegroundColor Red
-		exit 1
+		Write-Host "Trying to run local app" -ForegroundColor Yellow
+		Run-App
+		ExitWithSleep
 	}
 }
 
@@ -31,6 +38,16 @@ Function Unzip-File{
 	Add-Type -assembly "system.io.compression.filesystem"
 	[io.compression.zipfile]::ExtractToDirectory($InFile, $OutPath)
 }
+
+Function Run-App{
+	Try {
+		. "$InstallPath\init.ps1"
+	}
+	Catch {
+		Write-Host "Error trying to run app" -ForegroundColor Red
+		ExitWithSleep
+	}
+}
 #################################################
 ##################### Main ######################
 #################################################
@@ -38,7 +55,7 @@ $VersionFile="version.ini"
 $InstallFile="install.zip"
 
 Write-Host "Loading config" -ForegroundColor Green
-Try{. ("$PSScriptRoot\config.ps1")} Catch {	Write-Host "Error reading config file, check if config.ps1 exist in directory" -ForegroundColor Red; exit 1}
+Try{. ("$PSScriptRoot\config.ps1")} Catch {	Write-Host "Error reading config file, check if config.ps1 exist in directory" -ForegroundColor Red; ExitWithSleep}
 
 Write-Host "Creating temporary directory" -ForegroundColor Green
 $TempPath="$env:TEMP\" + [System.IO.Path]::GetRandomFileName()
@@ -77,7 +94,7 @@ else{
 }
 
 Write-Host "Running app" -ForegroundColor Green
-. "$InstallPath\init.ps1"
+Run-App
 
 Write-Host "Removing temporary directory" -ForegroundColor Green
 Try-Catch-Command "Remove-Item -Recurse '$TempPath' -Force" "Error removing directory $TempPath"
