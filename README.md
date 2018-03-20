@@ -13,6 +13,8 @@ git clone https://github.com/inetshell/appupdater.git
 !define INSTALL_PATH "c:\Apps\TestApp"
 ```
 
-3. Install NSIS from [Official Site](http://nsis.sourceforge.net/Download).
+3. Put an icon for the App in `config\icon.ico`
 
-4. Compile the NSIS file `installer.nsi`.
+4. Install NSIS from [Official Site](http://nsis.sourceforge.net/Download).
+
+5. Compile the NSIS file `installer.nsi`.
