@@ -24,7 +24,7 @@ Section "install"
 	FileOpen $4 "$INSTDIR\config.ps1" w
 	FileWrite $4 "$$Url = '${UPDATE_URL}'$\r$\n"
 	FileWrite $4 "$$InstallPath = '$INSTDIR\app'$\r$\n"
-	FileWrite $4 "$$APP_NAME = '${APP_NAME}'$\r$\n"
+	FileWrite $4 "$$AppName = '${APP_NAME}'$\r$\n"
 	FileClose $4
 
 	; Put  loader files
