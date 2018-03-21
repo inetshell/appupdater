@@ -20,10 +20,9 @@ Function Try-Catch-Command{
 }
 
 Function Update-App{
-	Param ($RemoteVersionFile, $InstallZip, $OutPath)
+	Param ($InstallZip, $OutPath)
 	Write-Host "Extracting file" -ForegroundColor Green
 	Try-Catch-Command "Unzip-File '$InstallZip' '$OutPath'" "Error during installation"
-	Copy-Item "$RemoteVersionFile" -Destination "$OutPath"
 }
 
 Function Download-File{
@@ -66,9 +65,9 @@ Download-File "$Url/$VersionFile" "$TempPath\$VersionFile"
 $RemoteApp = ConvertFrom-StringData((Get-Content $TempPath\$VersionFile ) -join "`n")
 Write-Host "Remote version found: $($RemoteApp.CompileCount)" -ForegroundColor Cyan
 
-Write-Host "Checking local version from $InstallPath\$VersionFile" -ForegroundColor Green
-If(test-path "$InstallPath\$VersionFile"){
-	$LocalApp = ConvertFrom-StringData((Get-Content $InstallPath\$VersionFile ) -join "`n")
+Write-Host "Checking local version from $PSScriptRoot\$VersionFile" -ForegroundColor Green
+If(test-path "$PSScriptRoot\$VersionFile"){
+	$LocalApp = ConvertFrom-StringData((Get-Content $PSScriptRoot\$VersionFile ) -join "`n")
 	Write-Host "Local version found: $($LocalApp.CompileCount)" -ForegroundColor Cyan
 }
 else{
@@ -87,7 +86,8 @@ If([int]$RemoteApp.CompileCount -gt [int]$LocalApp.CompileCount){
 If($InstallApp){
 	Write-Host "Installing the latest version" -ForegroundColor Green
 	Download-File "$Url/$InstallFile" "$TempPath\$InstallFile"
-	Update-App "$TempPath\$VersionFile" "$TempPath\$InstallFile" "$InstallPath"
+	Update-App "$TempPath\$InstallFile" "$InstallPath"
+	Copy-Item "$TempPath\$VersionFile" -Destination "$PSScriptRoot\$VersionFile"
 }
 else{
 	Write-Host "You have the latest version" -ForegroundColor Green
