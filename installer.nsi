@@ -43,6 +43,10 @@ Section "uninstall"
 	ExecWait '"taskkill" /F /IM ${APP_NAME}.exe'
 	Sleep 3000
 	
+ 	# Exec uninstallation script
+	ExecWait '"powershell.exe" "-ExecutionPolicy Bypass -File $INSTDIR\app\uninstall.ps1"'
+	Sleep 3000
+	
 	# Remove app files
 	RMDir /r $INSTDIR\app
 	
