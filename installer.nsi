@@ -44,7 +44,7 @@ Section "uninstall"
 	Sleep 3000
 	
  	# Exec uninstallation script
-	ExecWait '"powershell.exe" "-ExecutionPolicy Bypass -File $INSTDIR\app\uninstall.ps1"'
+	ExecWait '"powershell.exe" -ExecutionPolicy Bypass -File $INSTDIR\app\uninstall.ps1'
 	Sleep 3000
 	
 	# Remove app files
